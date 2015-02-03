@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Top Trumps</title>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="images/favicon.ico">
+
+    <link href='http://fonts.googleapis.com/css?family=Raleway:600,400' rel='stylesheet' type='text/css'>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            margin: 25px 4%;
+            border: 1px solid grey;
+        }
+        @media (min-width: 750px) {
+            body {
+                margin: 25px auto;
+                width: 650px;
+            }
+        }
+        h2 {
+            font-weight: 400;
+            text-align: center;
+        }
+        .categories {
+            font-size: 1.3em;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .category {
+            margin: 10px 6%;
+            width: 88%;
+        } 
+        @media (min-width: 550px) {
+            .category {width: 38%;}
+        }
+        .picker {
+            margin: 10px 0;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .answer {
+            margin-top: 30px;
+            font-size: 1.4em;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .answer textarea {
+            width: 100%;
+            resize: vertical;
+        }
+        .answer .button {
+            margin: 0 0 5px 0;
+            width: 100%;
+        }
+        @media (min-width: 550px) {
+            .answer textarea {width: 70%;}
+            .answer .button {
+                margin: 0 0 15px 10px;
+                width: 110px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Categories for <strong>Movies</strong></h2>
+    
+    <div class="categories" data-bind="foreach: items">
+        <div class="category" data-bind="text: $data.category"></div>
+    </div>
+
+    <div class="picker">Category will be selected by <strong>James Bond</strong></div>
+    
+    <div class="answer">
+        <textarea type="email" placeholder="Answer"></textarea>
+        <div class="button button-primary">submit</div>
+    </div>
+
+    <script>
+        var categoriesModel = function () {
+            this.items = ko.observableArray([
+                {id: 0, category: "Best Costumes"},
+                {id: 1, category: "Raunchiest Sex Scene"},
+                {id: 2, category: "Sappiest Romance"},
+                {id: 3, category: "Most Exciting Fight Scene"}
+            ]);
+        };
+        ko.applyBindings(new categoriesModel());
+    </script>
+    
+</body>
+</html>
