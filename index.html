@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Top Trumps</title>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="images/favicon.ico">
+
+    <link href='http://fonts.googleapis.com/css?family=Raleway:600,400' rel='stylesheet' type='text/css'>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            margin: 25px;
+            border: 1px solid lightgrey;
+        }
+        @media (min-width: 750px) {
+            body {
+                margin: 25px auto;
+                width: 650px;
+            }
+        }
+        #title {
+            font-weight: 400;
+            text-align: center;
+        }
+        #list {
+            font-size: 1.3em;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .item {
+            padding: 5px 0;
+            margin: 5px 6%;
+            width: 88%;
+        }
+        .item[selected] {
+            color: white;
+            background-color: #33C3F0;
+            font-weight: 600;
+            border-radius: 7px;
+            text-align: center;
+        }
+        @media (min-width: 550px) {
+            .item {width: 38%;}
+        }
+        #player {
+            margin: 10px 0;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        #answer {
+            margin-top: 30px;
+            font-size: 1.4em;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        #answer textarea {
+            width: 88%;
+            resize: vertical;
+        }
+        #answer .button {
+            margin: 0 0 1.5rem 0;
+            width: 88%;
+        }
+        @media (min-width: 550px) {
+            #answer textarea {width: 70%;}
+            #answer .button {
+                margin: 0 0 1.5rem 10px;
+                width: 110px;
+            }
+        }
+        
+        #game-states {
+            position: absolute;
+            bottom: 0px;
+            width: 650px;
+            font-size: 1.3em;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 id="title">
+        <strong data-bind="text: titleStrong1"></strong>
+        <span   data-bind="text: titleSpan"></span>
+        <strong data-bind="text: titleStrong2"></strong>
+    </h2>
+    
+    <div id="list" data-bind="foreach: items">
+        <div class="item" 
+             data-bind="text: $data.category, click: itemClick, attr: {'selected': $data.selected}">
+        </div>
+    </div>
+
+    <h3 id="player">
+        <span   data-bind="text: playerSpan"></span>
+        <strong data-bind="text: playerStrong"></strong>
+    </h3>
+    
+    <hr data-bind="visible: answerShow">
+    
+    <div id="answer">
+        <textarea placeholder="Answer" 
+                  data-bind="textInput: answerInput, visible: answerShow">
+        </textarea>
+        <input type="button" class="button button-primary"
+               data-bind="value: answerButton, click: buttonClick">
+    </div>
+    
+    <div id="game-states">
+        <div onclick="updatePage(0)">Player</div>
+        <div onclick="updatePage(1)">Chooser</div>
+        <div onclick="updatePage(2)">Vote!</div>
+    </div>
+    
+    <script>
+        var pages = [
+            {
+                title:  ["", "Categories for", "Movies"],
+                player: ["Category will be selected by", "James Bond"],
+                answer: [true, "", "Submit"],
+                items:  {
+                    isSelectable: false,
+                    data: [
+                        {id: 0, selected: false, category: "Best Costumes"},
+                        {id: 1, selected: false, category: "Raunchiest Sex Scene"},
+                        {id: 2, selected: false, category: "Sappiest Romance"},
+                        {id: 3, selected: false, category: "Most Exciting Fight Scene"}
+                    ]
+                }
+            },
+            {
+                title:  ["", "Categories for", "Movies"],
+                player: ["", "Please select a category"],
+                answer: [true, "", "Submit"],
+                items:  {
+                    isSelectable: true,
+                    data: [
+                        {id: 0, selected: false, category: "Best Costumes"},
+                        {id: 1, selected: false, category: "Raunchiest Sex Scene"},
+                        {id: 2, selected: false, category: "Sappiest Romance"},
+                        {id: 3, selected: false, category: "Most Exciting Fight Scene"}
+                    ]
+                }
+            },
+            {
+                title:  ["Movies", "with", "Best Costumes"],
+                player: ["", "Vote for your favorite response"],
+                answer: [false, "", "Vote"],
+                items:  {
+                    isSelectable: true,
+                    data: [
+                        {id: 0, selected: false, category: "Pirates of the Caribbean"},
+                        {id: 1, selected: false, category: "Ever After"},
+                        {id: 2, selected: false, category: "Shakespeare In Love"},
+                        {id: 3, selected: false, category: "The Princess Bride"},
+                        {id: 4, selected: false, category: "Stardust"},
+                        {id: 5, selected: false, category: "My Super Ex-Girlfriend"}                
+                    ]
+                }
+            }
+        ];
+        var page = pages[1];
+        
+        function updatePage (n) {
+            n = Math.max(0, n);
+            n = Math.min(n, pages.length - 1);
+            categoriesViewModel.update(pages[n]);
+        }
+    </script>
+
+    
+    <script>
+        //View Model
+        var categoriesModel = function () {
+            this.titleStrong1 = ko.observable(page.title[0]);
+            this.titleSpan    = ko.observable(page.title[1]);
+            this.titleStrong2 = ko.observable(page.title[2]);
+            
+            this.playerSpan   = ko.observable(page.player[0]);
+            this.playerStrong = ko.observable(page.player[1]);
+            
+            this.answerShow   = ko.observable(page.answer[0]);
+            this.answerInput  = ko.observable(page.answer[1]);
+            this.answerButton = ko.observable(page.answer[2]);
+
+            this.itemsSelectable = ko.observable(page.items.isSelectable);
+            this.items = ko.observableArray([]);
+            var n;
+            for (n = 0; n < page.items.data.length; n++) {
+                this.items.push(page.items.data[n]);
+            }
+            
+            //Functions
+            this.setSelectedItems = function (switchId) {
+                var n;
+                for (n = 0; n < this.items().length; n++) {
+                    var off = this.items.pop();
+                    off.selected = (off.id === switchId) ? !off.selected : false; 
+                    this.items.unshift(off);
+                }
+            }
+            this.update = function (newPage) {
+                this.titleStrong1(    newPage.title[0]);
+                this.titleSpan(       newPage.title[1]);
+                this.titleStrong2(    newPage.title[2]);
+
+                this.playerSpan(      newPage.player[0]);
+                this.playerStrong(    newPage.player[1]);
+
+                this.answerShow(      newPage.answer[0]);
+                this.answerInput(     newPage.answer[1]);
+                this.answerButton(    newPage.answer[2]);
+
+                this.itemsSelectable( newPage.items.isSelectable);
+                var n, len = this.items().length;
+                for (n = 0; n < len; n++) this.items.pop();
+                for (n = 0; n < newPage.items.data.length; n++) this.items.push(newPage.items.data[n]); 
+            }
+        };
+        
+        //Initialize View Model
+        var categoriesViewModel = new categoriesModel();
+        ko.applyBindings(categoriesViewModel);
+        
+        
+        //Misc. Fucntions
+        function itemClick (obj, event) {
+            if (categoriesViewModel.itemsSelectable())
+                categoriesViewModel.setSelectedItems(obj.id);
+        }
+        function buttonClick () {
+            alert("caleb");
+        }
+    </script>
+    
+</body>
+</html>
